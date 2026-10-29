@@ -20,7 +20,6 @@ module.exports = async (req, res) => {
     const { slug } = req.query;
     const subPath = slug ? slug.join('/') : '';
 
-    // Güncelleme (POST / PATCH) istekleri için
     if (req.method === 'POST' || req.method === 'PATCH') {
       const { username, repo, description } = req.body || {};
       const targetUser = username || 'bilalhabessimsek';
@@ -41,7 +40,6 @@ module.exports = async (req, res) => {
       return res.status(githubRes.status).json(data);
     }
 
-    // Veri çekme (GET) istekleri için
     const githubUrl = `https://api.github.com/${subPath}`;
     
     const githubRes = await fetch(githubUrl, {
