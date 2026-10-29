@@ -17,10 +17,16 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { slug, ...queryParams } = req.query;
-    const subPath = slug ? slug.join('/') : '';
+    let { slug, ...queryParams } = req.query;
+    
+    // Slug ister dizi ister string gelsin, güvenli şekilde birleştirelim
+    let subPath = '';
+    if (Array.isArray(slug)) {
+      subPath = slug.join('/');
+    } else if (typeof slug === 'string') {
+      subPath = slug;
+    }
 
-    // Query parametrelerini (varsa) GitHub URL'sine ekleyelim
     const urlSearchParams = new URLSearchParams(queryParams);
     const queryString = urlSearchParams.toString();
     const githubUrl = `https://api.github.com/${subPath}${queryString ? '?' + queryString : ''}`;
@@ -28,7 +34,7 @@ module.exports = async (req, res) => {
     if (req.method === 'POST' || req.method === 'PATCH') {
       const { username, repo, description } = req.body || {};
       const targetUser = username || 'bilalhabessimsek';
-      const targetRepo = repo || slug?.[1];
+      const targetRepo = repo || (Array.isArray(slug) ? slug[1] : '');
 
       const githubRes = await fetch(`https://api.github.com/repos/${targetUser}/${targetRepo}`, {
         method: req.method,
