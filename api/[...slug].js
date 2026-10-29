@@ -17,8 +17,13 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { slug } = req.query;
+    const { slug, ...queryParams } = req.query;
     const subPath = slug ? slug.join('/') : '';
+
+    // Query parametrelerini (varsa) GitHub URL'sine ekleyelim
+    const urlSearchParams = new URLSearchParams(queryParams);
+    const queryString = urlSearchParams.toString();
+    const githubUrl = `https://api.github.com/${subPath}${queryString ? '?' + queryString : ''}`;
 
     if (req.method === 'POST' || req.method === 'PATCH') {
       const { username, repo, description } = req.body || {};
@@ -39,8 +44,6 @@ module.exports = async (req, res) => {
       const data = await githubRes.json();
       return res.status(githubRes.status).json(data);
     }
-
-    const githubUrl = `https://api.github.com/${subPath}`;
     
     const githubRes = await fetch(githubUrl, {
       method: 'GET',
